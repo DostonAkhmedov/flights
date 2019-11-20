@@ -1,5 +1,5 @@
 {
-    "name": "Doston/szrcai-flights",
+    "name": "szrcai/flights",
     "type": "library",
     "description": "Emulate aircraft traffic along predefined paths",
     "license": "MIT",
