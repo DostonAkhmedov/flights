@@ -1,0 +1,16 @@
+{
+    "name": "Doston/szrcai-flights",
+    "type": "library",
+    "description": "Emulate aircraft traffic along predefined paths",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "akhmedovdoston",
+            "email": "akhmedovdoston@gmail.com"
+        }
+    ],
+    "minimum-stability": "alpha",
+    "require": {
+        "php": ">=5.4.0"
+    }
+}
