@@ -15,7 +15,7 @@
     },
     "autoload": {
         "psr-4": {
-            "szrcai-flights": "src/"
+            "szrcai-flights\\": "src/"
         }
     }
 }
