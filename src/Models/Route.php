@@ -28,7 +28,9 @@ class Route
 
     public function setStartTime($datetime)
     {
-        return $this->start = $datetime;
+        $this->start = $datetime;
+
+        return $this;
     }
 
     public function getSpeed()
@@ -38,7 +40,9 @@ class Route
 
     public function setSpeed($speed)
     {
-        return $this->speed = $speed;
+        $this->speed = $speed;
+
+        return $this;
     }
 
     public function getNumber()
@@ -49,6 +53,8 @@ class Route
     public function setNumber($number)
     {
         $this->number = $number;
+
+        return $this;
     }
 
     public function getPoints()
@@ -59,6 +65,8 @@ class Route
     public function setPoint($lat, $lon)
     {
         $this->points[] = new Location($lat, $lon);
+
+        return $this;
     }
 
     public function getDistance(Location $loc1, Location $loc2)

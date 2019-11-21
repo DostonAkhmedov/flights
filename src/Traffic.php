@@ -17,22 +17,22 @@ class Traffic
         if ($data["routes"]) {
             foreach ($data["routes"] as $id => $route) {
                 $newRoute = new Route($route["name"], $route["registration"]);
-                $newRoute->setStartTime($route["start"]);
-                $newRoute->setSpeed($route["speed"]);
-                $newRoute->setNumber($id);
+                $newRoute->setStartTime($route["start"])
+                    ->setSpeed($route["speed"])
+                    ->setNumber($id);
                 if ($route["tr"]) {
                     foreach ($route["tr"] as $point) {
                         $newRoute->setPoint($point[0], $point[1]);
                     }
                 }
-                $this->routes[] = $newRoute;
+                $this->routes[$newRoute->getNumber()] = $newRoute;
             }
         }
     }
 
     public function setRoute(Route $route)
     {
-        $this->routes[] = $route;
+        $this->routes[$route->getNumber()] = $route;
     }
 
     public function getRoutes()
@@ -122,10 +122,8 @@ class Traffic
 
     protected function getRoute($number)
     {
-        foreach ($this->routes as $route) {
-            if ($route->getNumber() == $number) {
-                return $route;
-            }
+        if (isset($this->routes[$number])) {
+            return $this->routes[$number];
         }
 
         throw new \Exception("Route $number is not found!");
