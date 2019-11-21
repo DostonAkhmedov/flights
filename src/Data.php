@@ -6,33 +6,24 @@ namespace Szrcai\Flights;
 
 class Data
 {
-    private static $instance = null;
-
-    private $loadDir = "/data/";
-
-    private $fileName = "routes.json";
-
-    private $filePath = null;
+    private $filePath;
 
     private $result = array();
 
-    public function __construct()
+    public function __construct($filePath)
     {
-        $this->filePath = $this->loadDir . $this->fileName;
+        $this->filePath = $filePath;
     }
 
-    public static function load()
+    public function load()
     {
-        if (!self::$instance) {
-            self::$instance = new self();
-        }
         try {
-            $data = file_get_contents(self::$instance->filePath);
-            self::$instance->result = json_decode($data, true);
+            $data = file_get_contents($this->filePath);
+            $this->result = json_decode($data, true);
         } catch (\Exception $e) {
-            throw new("Error with load data: ".$e->getMessage());
+            throw new \Exception("Error with load data: ".$e->getMessage());
         }
 
-        return self::$instance->result;
+        return $this->result;
     }
 }
