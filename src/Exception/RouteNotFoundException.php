@@ -5,7 +5,7 @@ namespace Szrcai\Flights\Exception;
 
 
 
-class RouteNotFoundException extends RouteException
+class RouteNotFoundException extends \Exception
 {
 
 }
