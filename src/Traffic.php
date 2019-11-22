@@ -4,114 +4,132 @@
 namespace Szrcai\Flights;
 
 
-use Cassandra\Date;
+use Szrcai\Flights\Exception\PointsNotEnoughException;
+use Szrcai\Flights\Exception\RouteNotFoundException;
 use Szrcai\Flights\Models\Route;
 
 class Traffic
 {
+    /**
+     * Result
+     * Return list of routes
+     * @var array
+     */
     private $routes = array();
 
+    /**
+     * Load data from json file
+     * @param $dataPath
+     * @throws \Exception
+     */
     public function loadData($dataPath)
     {
         $data = (new Data($dataPath))->load();
         if ($data["routes"]) {
             foreach ($data["routes"] as $id => $route) {
                 $newRoute = new Route($route["name"], $route["registration"]);
-                $newRoute->setStartTime($route["start"])
-                    ->setSpeed($route["speed"])
-                    ->setNumber($id);
+                $newRoute->start = $route["start"];
+                $newRoute->speed = $route["speed"];
+                $newRoute->number = $id;
                 if ($route["tr"]) {
                     foreach ($route["tr"] as $point) {
-                        $newRoute->setPoint($point[0], $point[1]);
+                        $newRoute->addPoint($point[0], $point[1]);
                     }
                 }
-                $this->routes[$newRoute->getNumber()] = $newRoute;
+                $this->routes[$newRoute->number] = $newRoute;
             }
         }
     }
 
+    /**
+     * Set new route
+     * @param Route $route
+     * @throws PointsNotEnoughException
+     */
     public function setRoute(Route $route)
     {
-        $this->routes[$route->getNumber()] = $route;
+        $cntPoints = $route->getCountPoints();
+        if ($cntPoints < Route::MIN_POINTS) {
+            throw new PointsNotEnoughException("There must be at least 2 points. Missed "
+                . (Route::MIN_POINTS - $cntPoints) . " points!");
+        }
+        $this->routes[$route->number] = $route;
     }
 
+    /**
+     * Get lis of routes
+     * @return array
+     */
     public function getRoutes()
     {
         return $this->routes;
     }
 
+    /**
+     * Return distance of the route in kilometers by number
+     * @param $number
+     * @return int
+     * @throws RouteNotFoundException
+     */
     public function distance($number)
     {
-        try {
-            $route = $this->getRoute($number);
-            $points = $route->getPoints();
-            $distance = 0;
-            if (count($points) >= 2) {
-                for ($i = 1; $i < count($points); $i++) {
-                    $distance += $route->getDistance($points[$i], $points[$i - 1]);
-                }
-            }
-        } catch (\Exception $e) {
-            throw $e;
-        }
-
-        return $distance;
+        return $this->getRoute($number)
+            ->getDistance();
     }
 
+    /**
+     * Return estimated time of arrival by number
+     * @param $number
+     * @return mixed
+     * @throws RouteNotFoundException
+     */
     public function timeArrival($number)
     {
-        try {
-            $route = $this->getRoute($number);
-            $distance = $this->distance($number);
-            $time = $route->getFinishTime($distance, $route->getSpeed(), $route->getStartTime());
-        } catch (\Exception $e) {
-            throw $e;
-        }
-
-        return $time;
+        return $this->getRoute($number)
+            ->finishTime();
     }
 
+    /**
+     * Return distance for each section of the route in kilometers for flight
+     * @param $number
+     * @param $leg
+     * @return int
+     * @throws RouteNotFoundException
+     */
     public function partDistance($number, $leg)
     {
-        try {
-            $route = $this->getRoute($number);
-            $points = $route->getPoints();
-            $distance = 0;
-            if (count($points) >= 2) {
-                $distance = $route->getDistance($points[$leg], $points[$leg - 1]);
-            }
-        } catch (\Exception $e) {
-            throw $e;
-        }
-
-        return $distance;
+        return $this->getRoute($number)
+            ->getPartDistance($leg);
     }
 
+    /**
+     * Return estimated time of arrival for each section of the route for flight
+     * @param $number
+     * @param $point
+     * @return mixed
+     * @throws RouteNotFoundException
+     */
     public function partTimeArrival($number, $point)
     {
-        try {
-            $route = $this->getRoute($number);
-            $time = $route->getStartTime();
-            for ($i = 1; $i <= $point; $i++) {
-                $startTime = $time;
-                $distance = $this->partDistance($number, $i);
-                $time = $route->getFinishTime($distance, $route->getSpeed(), $startTime);
-            }
-        } catch (\Exception $e) {
-            throw $e;
-        }
-
-        return $time;
+        return $this->getRoute($number)
+            ->partFinishTime($point);
     }
 
+    /**
+     * Return list of current airplanes that are already in flight but have not yet reached the final point
+     * @param \DateTime|null $date
+     * @return array
+     * @throws \Exception
+     */
     public function inAir(\DateTime $date = null)
     {
         $result = array();
         if (is_null($date)) {
             $date = new \DateTime();
         }
+
         foreach ($this->routes as $route) {
-            $finishDate = new \DateTime($this->timeArrival($route->getNumber()));
+            $finishDate = new \DateTime($this->timeArrival($route->number));
             if ($finishDate > $date) {
                 $result[] = $route;
             }
@@ -120,12 +138,18 @@ class Traffic
         return $result;
     }
 
+    /**
+     * Return route by number
+     * @param $number
+     * @return mixed
+     * @throws RouteNotFoundException
+     */
     protected function getRoute($number)
     {
         if (isset($this->routes[$number])) {
             return $this->routes[$number];
         }
 
-        throw new \Exception("Route $number is not found!");
+        throw new RouteNotFoundException("Route '$number' is not found!");
     }
 }

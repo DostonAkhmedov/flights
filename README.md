@@ -27,14 +27,14 @@ $route = new \Szrcai\Flights\Models\Route(
     "AirBus", //The name of plane
     "RB-0000" //Registration number
 );
-$route->setNumber("NEW") //Flight number
-    ->setStartTime("2019-11-21 10:00") //Departure time
-    ->setSpeed(356) //The speed of plane
-    ->setPoint(56, 64) //Starting point
-    ->setPoint(50, 48) //Intermediate point
+$route->number = "NEW"; //Flight number
+$route->start = "2019-11-22 01:00"; //Departure time
+$route->speed = 356; //The speed of plane
+$route->addPoint(56, 64) //Starting point
+    ->addPoint(50, 48) //Intermediate point
     //There can be many intermediate points
     //...
-    ->setPoint(45, 36); //End point
+    ->addPoint(45, 36); //End point
 
 //Save route
 $traffic->setRoute($route);

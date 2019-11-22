@@ -6,75 +6,124 @@ namespace Szrcai\Flights\Models;
 
 class Route
 {
+    /**
+     * The radius of Earth
+     * @var float
+     */
     const EARTH_RADIUS = 6371.230;
 
-    private $number;
-    private $name;
-    private $registration;
-    private $start;
-    private $points = array();
-    private $speed;
+    /**
+     * Least number of points
+     * @var int
+     */
+    const MIN_POINTS = 2; // start and finish
 
+    /**
+     * The name of plane
+     * @var string
+     */
+    public $name;
+
+    /**
+     * Registration number
+     * @var string
+     */
+    public $registration;
+
+    /**
+     * Flight number
+     * @var string
+     */
+    public $number;
+
+    /**
+     * Departure time
+     * @var string
+     */
+    public $start;
+
+    /**
+     * The speed of plane
+     * @var int
+     */
+    public $speed;
+
+    /**
+     * The list of points
+     * @var array
+     */
+    private $points = array();
+
+    /**
+     * Route constructor.
+     * @param $name
+     * @param $registration
+     */
     public function __construct($name, $registration)
     {
         $this->name = $name;
         $this->registration = $registration;
     }
 
-    public function getStartTime()
-    {
-        return $this->start;
-    }
-
-    public function setStartTime($datetime)
-    {
-        $this->start = $datetime;
-
-        return $this;
-    }
-
-    public function getSpeed()
-    {
-        return $this->speed;
-    }
-
-    public function setSpeed($speed)
-    {
-        $this->speed = $speed;
-
-        return $this;
-    }
-
-    public function getNumber()
-    {
-        return $this->number;
-    }
-
-    public function setNumber($number)
-    {
-        $this->number = $number;
-
-        return $this;
-    }
-
+    /**
+     * Return list of points
+     * @return array
+     */
     public function getPoints()
     {
         return $this->points;
     }
 
-    public function setPoint($lat, $lon)
+    /**
+     * Return count of points
+     * @return int
+     */
+    public function getCountPoints()
+    {
+        return count($this->points);
+    }
+
+    /**
+     * Add new point to route
+     * @param $lat
+     * @param $lon
+     * @return $this
+     */
+    public function addPoint($lat, $lon)
     {
         $this->points[] = new Location($lat, $lon);
 
         return $this;
     }
 
-    public function getDistance(Location $loc1, Location $loc2)
+    /**
+     * Return distance of the route
+     * @return float
+     */
+    public function getDistance()
     {
-        $lat1 = $loc1->getLatitude();
-        $lon1 = $loc1->getLongitude();
-        $lat2 = $loc2->getLatitude();
-        $lon2 = $loc2->getLongitude();
+        $distance = 0;
+        $cntPoints = $this->getCountPoints();
+        for ($i = 1; $i < $cntPoints; $i++) {
+            $distance += $this->getPartDistance($i);
+        }
+        return $distance;
+    }
+
+    /**
+     * Calculate and return distance of part of the route
+     * @param $leg
+     * @return float
+     */
+    public function getPartDistance($leg)
+    {
+        $points = $this->getPoints();
+        $loc1 = $points[$leg];
+        $loc2 = $points[$leg - 1];
+        $lat1 = $loc1->latitude;
+        $lon1 = $loc1->longitude;
+        $lat2 = $loc2->latitude;
+        $lon2 = $loc2->longitude;
 
         $dLat = deg2rad($lat2 - $lat1);
         $dLon = deg2rad($lon2 - $lon1);
@@ -88,13 +137,53 @@ class Route
         return $distance;
     }
 
-    public function getFinishTime($distance, $speed, $startTime)
+    /**
+     * Return finish time
+     * @return string
+     * @throws \Exception
+     */
+    public function finishTime()
     {
-        $flightTimeS = round(($distance / $speed) * 60 * 60);
-        $interval = new \DateInterval('PT'.intval($flightTimeS).'S');
-        $time = new \DateTime($startTime);
-        $time = $time->add($interval);
+        return $this->calcFinishTime(
+            $this->getDistance()
+        );
+    }
 
-        return $time->format("Y-m-d H:i");
+    /**
+     * Return finish time for part of the route
+     * @param $point
+     * @return string
+     * @throws \Exception
+     */
+    public function partFinishTime($point)
+    {
+        $distance = 0;
+        for ($i = 1; $i <= $point; $i++) {
+            $distance += $this->getPartDistance($i);
+        }
+
+        return $this->calcFinishTime($distance);
+    }
+
+    /**
+     * Calculate finish time by distance
+     * @param $distance
+     * @return string
+     * @throws \Exception
+     */
+    private function calcFinishTime($distance)
+    {
+        $startTime = $this->start;
+        $speed = $this->speed;
+        $flightTimeS = round(($distance / $speed) * 60 * 60);
+        try {
+            $interval = new \DateInterval('PT' . intval($flightTimeS) . 'S');
+            $time = new \DateTime($startTime);
+            $time = $time->add($interval);
+
+            return $time->format("Y-m-d H:i");
+        } catch (\Exception $e) {
+            throw $e;
+        }
     }
 }
