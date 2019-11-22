@@ -43,12 +43,12 @@ class Data
             throw new FileNotFoundException("File '{$this->filePath}' does not exist!");
         }
         $data = file_get_contents($this->filePath);
+
         $this->result = json_decode($data, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new JsonDecodeException("Error with data: ".json_last_error_msg());
         }
-
-
+        
         return $this->result;
     }
 }
