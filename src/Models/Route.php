@@ -66,6 +66,42 @@ class Route
     }
 
     /**
+     * Set flight number
+     * @param $number
+     * @return Route
+     */
+    public function setNumber($number)
+    {
+        $this->number = $number;
+
+        return $this;
+    }
+
+    /**
+     * Set flight start time
+     * @param $start
+     * @return Route
+     */
+    public function setStartTime($start)
+    {
+        $this->start = $start;
+
+        return $this;
+    }
+
+    /**
+     * Set speed for flight
+     * @param $speed
+     * @return Route
+     */
+    public function setSpeed($speed)
+    {
+        $this->speed = $speed;
+
+        return $this;
+    }
+
+    /**
      * Return list of points
      * @return array
      */

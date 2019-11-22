@@ -27,17 +27,17 @@ $route = new \Szrcai\Flights\Models\Route(
     "AirBus", //The name of plane
     "RB-0000" //Registration number
 );
-$route->number = "NEW"; //Flight number
-$route->start = "2019-11-22 01:00"; //Departure time
-$route->speed = 356; //The speed of plane
-$route->addPoint(56, 64) //Starting point
+$route->setNumber("NEW") //Flight number
+    ->setStartTime("2019-11-22 01:00") //Departure time
+    ->setSpeed(356) //The speed of plane
+    ->addPoint(56, 64) //Starting point
     ->addPoint(50, 48) //Intermediate point
     //There can be many intermediate points
     //...
     ->addPoint(45, 36); //End point
 
 //Save route
-$traffic->setRoute($route);
+$traffic->addRoute($route);
 
 //Get distance of the route in kilometers for flight number 'FV6702'
 print_r($traffic->distance("FV6702")); echo "\n";

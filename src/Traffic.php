@@ -42,11 +42,11 @@ class Traffic
     }
 
     /**
-     * Set new route
+     * Add new route
      * @param Route $route
      * @throws PointsNotEnoughException
      */
-    public function setRoute(Route $route)
+    public function addRoute(Route $route)
     {
         $cntPoints = $route->getCountPoints();
         if ($cntPoints < Route::MIN_POINTS) {

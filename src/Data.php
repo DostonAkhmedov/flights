@@ -46,9 +46,9 @@ class Data
 
         $this->result = json_decode($data, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new JsonDecodeException("Error with data: ".json_last_error_msg());
+            throw new JsonDecodeException("Error with data: " . json_last_error_msg());
         }
-        
+
         return $this->result;
     }
 }
