@@ -51,14 +51,3 @@ print_r($traffic->partTimeArrival("FV6702", 1)); echo "\n";
 print_r($traffic->inAir()); echo "\n";
 //Get a list of the routes
 print_r($traffic->getRoutes());
-```
-
-## Running tests using Composer
-```
-./vendor/bin/phpunit --bootstrap vendor/autoload.php tests
-```
-
-## Running tests using PHP Archive (PHAR)
-```
-./phpunit --bootstrap src/autoload.php tests
-```
