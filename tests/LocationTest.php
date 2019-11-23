@@ -8,9 +8,7 @@ class LocationTest extends PHPUnit\Framework\TestCase
         $location = new Szrcai\Flights\Models\Location(56, 64);
 
         $this->assertInstanceOf('Szrcai\\Flights\\Models\\Location', $location);
-        $this->assertIsInt($location->latitude);
-        $this->assertIsInt($location->longitude);
-        $this->assertGreaterThan(0, $location->latitude);
-        $this->assertGreaterThan(0, $location->longitude);
+        $this->assertEquals(56, $location->latitude);
+        $this->assertEquals(64, $location->longitude);
     }
 }
