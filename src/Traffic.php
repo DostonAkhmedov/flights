@@ -28,13 +28,16 @@ class Traffic
         if ($data["routes"]) {
             foreach ($data["routes"] as $id => $route) {
                 $newRoute = new Route($route["name"], $route["registration"]);
-                $newRoute->start = $route["start"];
-                $newRoute->speed = $route["speed"];
-                $newRoute->number = $id;
-                if ($route["tr"]) {
+                $newRoute->setStartTime($route["start"])
+                    ->setSpeed($route["speed"])
+                    ->setNumber($id);
+                if (count($route["tr"]) >= Route::MIN_POINTS) {
                     foreach ($route["tr"] as $point) {
                         $newRoute->addPoint($point[0], $point[1]);
                     }
+                } else {
+                    throw new PointsNotEnoughException("There must be at least " . Route::MIN_POINTS . " points. "
+                        . "Missed " . (Route::MIN_POINTS - count($route["tr"])) . " points!");
                 }
                 $this->routes[$newRoute->number] = $newRoute;
             }
@@ -50,8 +53,8 @@ class Traffic
     {
         $cntPoints = $route->getCountPoints();
         if ($cntPoints < Route::MIN_POINTS) {
-            throw new PointsNotEnoughException("There must be at least 2 points. Missed "
-                . (Route::MIN_POINTS - $cntPoints) . " points!");
+            throw new PointsNotEnoughException("There must be at least " . Route::MIN_POINTS . " points. "
+                . "Missed " . (Route::MIN_POINTS - $cntPoints) . " points!");
         }
         $this->routes[$route->number] = $route;
     }

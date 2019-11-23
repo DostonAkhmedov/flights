@@ -53,5 +53,12 @@ print_r($traffic->inAir()); echo "\n";
 print_r($traffic->getRoutes());
 ```
 
-## Note
-Package link: https://packagist.org/packages/szrcai/flights
+## Running tests using Composer
+```
+./vendor/bin/phpunit --bootstrap vendor/autoload.php tests
+```
+
+## Running tests using PHP Archive (PHAR)
+```
+./phpunit --bootstrap src/autoload.php tests
+```
