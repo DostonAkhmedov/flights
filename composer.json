@@ -20,5 +20,13 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^8.4"
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "@test"
+        ],
+        "test": [
+            "./vendor/bin/phpunit --bootstrap vendor/autoload.php tests"
+        ]
     }
 }
